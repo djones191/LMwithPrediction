@@ -1,0 +1,92 @@
+---
+title: "LMwithPrediction"
+author: "Daniel Jones"
+date: "10/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This is the linear model with prediction problem.  
+Predict strength scores using the data from the following website.  
+
+```{r}
+data <- read.csv(file="http://onlinestatbook.com/case_studies_rvls/physical_strength/data.txt",sep="",header=TRUE)
+```  
+
+```{r include=FALSE}
+require(tidyverse)
+require(tigerstats)
+require(ggplot)
+require(rgl)
+require(knitr)
+```
+
+
+### Plot scatterplot
+
+```{r}
+plot(SIMS~ARM,data=data)
+```
+
+```{r}
+basicNN <- ggplot(data,aes(y=SIMS,x=ARM))
+```
+##Now add in scatterplot
+
+```{r}
+basicNN + geom_point() + geom_smooth(method=lm)
+```
+
+```{r}
+model.1 <- lm(SIMS~ARM,data=data)
+summary.lm(model.1)
+new=data.frame(GRIP=94,ARM=88)
+predict.lm(model.1,new,interval = "prediction")
+```
+```{r}
+plot(SIMS~GRIP,data=data)
+```
+
+```{r}
+basicNN <- ggplot(data,aes(y=SIMS,x=GRIP))
+```
+##Now add in scatterplot
+
+```{r}
+basicNN + geom_point() + geom_smooth(method=lm)
+```
+
+Model 1 fit, the adjusted r-squared is 0.467. About 47% of the variability in SIMS can be explained by the variability in ARM. The predicted score for SIMS is 0.71  The 95% confidence interval is from -1.726209 to 3.138977.
+
+```{r}
+model.2 <- lm(SIMS~GRIP,data=data)
+summary.lm(model.2)
+predict.lm(model.2,new,interval = "prediction")
+```
+
+model 2 fit, the adjusted r-squared is .4053 About 41% of the variability in SIMS can be explained by the variability in GRIP. The predicted score in SIMS is -0.54   The 95% confidence interval is from -3.167561 to 2.035652
+
+```{r}
+model.3 <- lm(SIMS~ARM+GRIP,data=data)
+summary.lm(model.3)
+predict.lm(model.3,new,interval = "prediction")
+```
+
+model 3 fit, the adjusted r-squared is 0.5350 About 54% of the variability in SIMS can be explained by the variability in both ARM and GRIP. The predicted score in SIMS is .15 The 95% confidence interval is from -2.132373 to 2.431668
+
+```{r}
+anova(model.1,model.3)
+```
+null hypothesis: there is no difference in the models    
+alternative hypothesis: there is a difference in the models    
+The p-value is .00000499
+
+Conclusion:   
+We reject the null hypothesis because the p-value is less than .05
+
+
